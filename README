@@ -1,1 +1,1 @@
-cc main.c -o main -L/usr/local/lib -ldiscord -lcurl -lpthread ; ./main
+cc main.c -o bot -L/usr/local/lib -ldiscord -lcurl -lpthread ; ./bot

@@ -1,35 +1,17 @@
+#include "commands.c"
+#include "helpers.c"
 #include <concord/discord.h>
+#include <concord/log.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-// function to read contents of a file
-char *read_file(const char *filename) {
-  FILE *file = fopen(filename, "r");
-  if (!file) {
-    return NULL;
-  }
+#define PREFIX "!"
 
-  fseek(file, 0, SEEK_END);
-  long length = ftell(file);
-  fseek(file, 0, SEEK_SET);
-
-  char *buffer = malloc(length + 1);
-  if (!buffer) {
-    fclose(file);
-    return NULL;
-  }
-
-  fread(buffer, 1, length, file);
-  buffer[length] = '\0';
-  fclose(file);
-
-  // remove \n from the last
-  if (buffer[length - 1] == '\n') {
-    buffer[length - 1] = '\0';
-  }
-
-  return buffer;
+// EVENTS
+void on_ready(struct discord *client, const struct discord_ready *event) {
+  // set the status of the bot
+  printf("succesfully connected to Discord as %s#%s!\n", event->user->username,
+         event->user->discriminator);
 }
 
 int main(void) {
@@ -43,9 +25,17 @@ int main(void) {
     return 1;
   }
 
-  discord_add_intents(client, DISCORD_GATEWAY_MESSAGE_CONTENT);
-  discord_run(client);
+  discord_add_intents(client, DISCORD_GATEWAY_GUILDS);
+  discord_set_on_ready(client, &on_ready);
 
+  // setting the commands
+  for (size_t i = 0; i < NoOfCommands; i++) {
+    char s[] = PREFIX;
+    concatenate_string(s, Commands[i].command);
+    discord_set_on_command(client, s, Commands[i].callback);
+  }
+
+  discord_run(client);
   discord_cleanup(client);
   return 0;
 }
