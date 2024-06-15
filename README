@@ -1,0 +1,1 @@
+cc main.c -o main -L/usr/local/lib -ldiscord -lcurl -lpthread ; ./main
