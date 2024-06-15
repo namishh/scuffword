@@ -1,1 +1,1 @@
-cc main.c -o bot -L/usr/local/lib -ldiscord -lcurl -lpthread ; ./bot
+cc main.c -o bot -L/usr/local/lib -ldiscord -lcurl -lpthread -lsqlite3 ; ./bot

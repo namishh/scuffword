@@ -15,7 +15,7 @@ void on_ready(struct discord *client, const struct discord_ready *event) {
 }
 
 int main(void) {
-  char *key = read_file("./public/KEY.txt");
+  char *key = read_file("./private/KEY.txt");
   struct discord *client = discord_init(key);
   free(key);
 
