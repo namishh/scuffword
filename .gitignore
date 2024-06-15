@@ -1,3 +1,4 @@
 KEY.txt
 *.log
 bot
+*.db
