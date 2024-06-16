@@ -1,1 +1,17 @@
+# Password Game Bot 
+
+# To run the bot
 cc main.c -o bot -L/usr/local/lib -ldiscord -lcurl -lpthread -lsqlite3 ; ./bot
+
+* requires concord and sqlite3
+
+# Todo
+- [x] set up database
+- [x] set up commands
+- [x] save profile 
+- [x] validate questions
+- [ ] tell errors
+- [ ] save last guess
+- [ ] progres player
+- [ ] end the game
+

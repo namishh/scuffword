@@ -1,4 +1,5 @@
 #include "db.c"
+#include "prompts.c"
 #include <concord/discord.h>
 #include <concord/log.h>
 
@@ -44,6 +45,16 @@ void on_profile(struct discord *client, const struct discord_message *msg) {
   printf("%s\n", profile->name);
 }
 
+void on_guess(struct discord *client, const struct discord_message *msg) {
+  if (msg->author->bot)
+    return;
+
+  // get the arguements to the command
+  char *args = msg->content;
+  struct Result *valid = validate_password(args);
+  printf("%s\n", args);
+}
+
 static const struct command Commands[] = {{.command = "ping",
                                            .description = "send pong",
                                            .usage = "!ping",
@@ -53,6 +64,12 @@ static const struct command Commands[] = {{.command = "ping",
                                               .description = "get user profile",
                                               .usage = "!profile",
                                               .callback = &on_profile,
+                                          },
+                                          {
+                                              .command = "guess",
+                                              .description = "try password",
+                                              .usage = "!guess <guess>",
+                                              .callback = &on_guess,
                                           }};
 
 static const int NoOfCommands = sizeof(Commands) / sizeof(Commands[0]);

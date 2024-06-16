@@ -10,6 +10,7 @@ struct user {
   unsigned long long int id;
   char *name;
   int level;
+  char *previous_answer;
 };
 
 void seed_db() {
@@ -17,7 +18,7 @@ void seed_db() {
   sqlite3_open(DB_FILE, &DB);
   int rc = sqlite3_exec(DB,
                         "CREATE TABLE IF NOT EXISTS users (id BIGINT PRIMARY "
-                        "KEY, name TEXT, level INTEGER);",
+                        "KEY, name TEXT, level INTEGER, previous_answer TEXT);",
                         0, 0, &err_msg);
   if (rc != SQLITE_OK) {
     fprintf(stderr, "Failed to create table: %s\n", err_msg);
@@ -50,6 +51,7 @@ struct user *get_profile(int id) {
     result->name = strdup(
         (const char *)sqlite3_column_text(stmt, 1)); // Allocate memory for name
     result->level = sqlite3_column_int(stmt, 2);
+    result->previous_answer = "";
   } else {
     // make profile if not found
   }
@@ -66,7 +68,7 @@ struct user *create_user(int id, char *username) {
   struct user *result = NULL;
 
   sqlite3_open(DB_FILE, &DB);
-  int rc = sqlite3_prepare_v2(DB, "INSERT INTO users VALUES(?, ?, 0)", -1,
+  int rc = sqlite3_prepare_v2(DB, "INSERT INTO users VALUES(?, ?, 0, '')", -1,
                               &stmt, NULL);
 
   sqlite3_bind_int(stmt, 1, id);
@@ -86,6 +88,7 @@ struct user *create_user(int id, char *username) {
   result->id = id;
   result->name = strdup(username);
   result->level = 0;
+  result->previous_answer = "";
 
   return result;
 }
