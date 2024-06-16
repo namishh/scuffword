@@ -15,6 +15,7 @@ void on_ready(struct discord *client, const struct discord_ready *event) {
 }
 
 int main(void) {
+  // seed_db();
   char *key = read_file("./private/KEY.txt");
   struct discord *client = discord_init(key);
   free(key);
@@ -32,6 +33,7 @@ int main(void) {
   for (size_t i = 0; i < NoOfCommands; i++) {
     char s[] = PREFIX;
     concatenate_string(s, Commands[i].command);
+    printf("Loading command %s\n", s);
     discord_set_on_command(client, s, Commands[i].callback);
   }
 
