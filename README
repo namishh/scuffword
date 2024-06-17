@@ -1,4 +1,4 @@
-# Password Game Bot 
+# Scuffed Password Game in a Discord Bot 
 
 # To run the bot
 cc main.c -o bot -L/usr/local/lib -ldiscord -lcurl -lpthread -lsqlite3 ; ./bot
@@ -10,9 +10,12 @@ cc main.c -o bot -L/usr/local/lib -ldiscord -lcurl -lpthread -lsqlite3 ; ./bot
 - [x] set up commands
 - [x] save profile 
 - [x] validate questions
+- [x] wordle 
+- [ ] roman numerals
 - [ ] tell errors
+- [ ] other questions
 - [ ] save last guess
-- [ ] progres player
-- [ ] end the game
+- [x] progres player
+- [x] end the game
 
 shoutout to https://www.nytimes.com/svc/wordle/v2/
