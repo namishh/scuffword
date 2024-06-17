@@ -68,7 +68,7 @@ struct user *create_user(int id, char *username) {
   struct user *result = NULL;
 
   sqlite3_open(DB_FILE, &DB);
-  int rc = sqlite3_prepare_v2(DB, "INSERT INTO users VALUES(?, ?, 0, '')", -1,
+  int rc = sqlite3_prepare_v2(DB, "INSERT INTO users VALUES(?, ?, 1, '')", -1,
                               &stmt, NULL);
 
   sqlite3_bind_int(stmt, 1, id);
@@ -91,4 +91,67 @@ struct user *create_user(int id, char *username) {
   result->previous_answer = "";
 
   return result;
+}
+
+void progress_user(struct user *profile) {
+  sqlite3_stmt *stmt;
+  sqlite3_open(DB_FILE, &DB);
+  int rc = sqlite3_prepare_v2(
+      DB, "UPDATE users SET level = level + 1 WHERE id = ?", -1, &stmt, NULL);
+
+  sqlite3_bind_int(stmt, 1, profile->id);
+  rc = sqlite3_step(stmt);
+
+  if (rc != SQLITE_DONE) {
+    fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(DB));
+    sqlite3_finalize(stmt);
+    sqlite3_close(DB);
+    return;
+  }
+
+  sqlite3_finalize(stmt);
+  sqlite3_close(DB);
+}
+
+// update player's previous previous_answer
+void update_previous_answer(struct user *profile, char *answer) {
+  sqlite3_stmt *stmt;
+  sqlite3_open(DB_FILE, &DB);
+  int rc = sqlite3_prepare_v2(
+      DB, "UPDATE users SET previous_answer = ? WHERE id = ?", -1, &stmt, NULL);
+
+  sqlite3_bind_text(stmt, 1, answer, -1, SQLITE_STATIC);
+  sqlite3_bind_int(stmt, 2, profile->id);
+  rc = sqlite3_step(stmt);
+
+  if (rc != SQLITE_DONE) {
+    fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(DB));
+    sqlite3_finalize(stmt);
+    sqlite3_close(DB);
+    return;
+  }
+
+  sqlite3_finalize(stmt);
+  sqlite3_close(DB);
+}
+
+void reset_profile(struct user *profile) {
+  sqlite3_stmt *stmt;
+  sqlite3_open(DB_FILE, &DB);
+  int rc = sqlite3_prepare_v2(
+      DB, "UPDATE users SET level = 0, previous_answer = '' WHERE id = ?", -1,
+      &stmt, NULL);
+
+  sqlite3_bind_int(stmt, 1, profile->id);
+  rc = sqlite3_step(stmt);
+
+  if (rc != SQLITE_DONE) {
+    fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(DB));
+    sqlite3_finalize(stmt);
+    sqlite3_close(DB);
+    return;
+  }
+
+  sqlite3_finalize(stmt);
+  sqlite3_close(DB);
 }

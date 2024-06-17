@@ -1,21 +1,15 @@
 #include "src/commands.c"
+#include "src/events.c"
 #include "src/utils.c"
 #include <concord/discord.h>
-#include <concord/log.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #define PREFIX "!"
 
 // EVENTS
-void on_ready(struct discord *client, const struct discord_ready *event) {
-  // set the status of the bot
-  printf("succesfully connected to Discord as %s#%s!\n", event->user->username,
-         event->user->discriminator);
-}
-
 int main(void) {
-  // seed_db();
+  seed_db();
   char *key = read_file("./private/KEY.txt");
   struct discord *client = discord_init(key);
   free(key);

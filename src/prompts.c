@@ -1,5 +1,4 @@
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -50,7 +49,7 @@ struct Challenge {
   bool (*check)(char *);
 };
 
-static const struct Challenge Challenges[] = {
+const struct Challenge Challenges[] = {
     {.name = "Password should have atleast 6 letters.", .check = &level_01},
     {.name = "Password should contain a number.", .check = &level_02},
     {.name = "Password should contain an uppercase letter.",
@@ -58,7 +57,7 @@ static const struct Challenge Challenges[] = {
     {.name = "Password should contain a special symbol.", .check = &level_04},
 };
 
-static const int NoOfChallenges = sizeof(Challenges) / sizeof(Challenges[0]);
+const int NoOfChallenges = sizeof(Challenges) / sizeof(Challenges[0]);
 
 struct Result {
   bool valid;
@@ -67,11 +66,10 @@ struct Result {
 
 // make a function that returns an array of results which are not valid
 
-struct Result *validate_password(char *password) {
+struct Result *validate_password(char *password, int level) {
   struct Result *results = malloc(sizeof(struct Result) * NoOfChallenges);
-  for (int i = 0; i < NoOfChallenges; i++) {
+  for (int i = 0; i < level + 1; i++) {
     bool valid = Challenges[i].check(password);
-    printf("prompt %d : %d \n", i + 1, valid);
     results[i].valid = valid;
     results[i].message = Challenges[i].name;
   }
