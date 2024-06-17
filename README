@@ -15,3 +15,4 @@ cc main.c -o bot -L/usr/local/lib -ldiscord -lcurl -lpthread -lsqlite3 ; ./bot
 - [ ] progres player
 - [ ] end the game
 
+shoutout to https://www.nytimes.com/svc/wordle/v2/

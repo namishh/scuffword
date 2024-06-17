@@ -1,6 +1,5 @@
 #include "src/commands.c"
 #include "src/events.c"
-#include "src/utils.c"
 #include <concord/discord.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +8,8 @@
 
 // EVENTS
 int main(void) {
-  seed_db();
+  // seed_db();
+  update_wordle();
   char *key = read_file("./private/KEY.txt");
   struct discord *client = discord_init(key);
   free(key);

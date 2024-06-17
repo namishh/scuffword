@@ -1,5 +1,6 @@
 #include "db.c"
 #include "prompts.c"
+#include "wordle.c"
 #include <concord/discord.h>
 #include <concord/log.h>
 
@@ -92,6 +93,13 @@ void on_guess(struct discord *client, const struct discord_message *msg) {
   if (msg->author->bot)
     return;
 
+  // get the timestamp
+  int timestamp = (int)time(NULL);
+  char *time = convert_timestamp(timestamp);
+  if (!are_equal(time, wordle.printdate)) {
+    printf("updating wordle \n");
+    update_wordle();
+  }
   unsigned long long int id = msg->author->id;
 
   struct user *profile = get_profile(id);
@@ -127,6 +135,8 @@ void on_guess(struct discord *client, const struct discord_message *msg) {
     progress_user(profile);
     printf("user proceeded to level %d\n", profile->level + 1);
   }
+
+  update_previous_answer(profile, args);
 
   printf("will proceed: %d\n", will_proceed);
   printf("%s\n", args);

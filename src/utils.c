@@ -1,7 +1,20 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
+char *convert_timestamp(int timestamp) {
+  time_t ts = (time_t)timestamp;
+  struct tm *tm_info;
+  char *buffer =
+      (char *)malloc(20 * sizeof(char)); // Allocate memory for "yyyy-mm-dd\0"
+
+  tm_info = localtime(&ts);
+  strftime(buffer, 20, "%Y-%m-%d", tm_info);
+
+  return buffer;
+}
 // function to read contents of a file
 char *read_file(const char *filename) {
   FILE *file = fopen(filename, "r");
@@ -39,4 +52,12 @@ void concatenate_string(char *s, char *s1) {
   }
   s[i + j] = '\0';
   return;
+}
+
+// check if two strings are equal
+bool are_equal(char *s1, char *s2) {
+  if (strcmp(s1, s2) == 0) {
+    return true;
+  }
+  return false;
 }
