@@ -61,3 +61,31 @@ bool are_equal(char *s1, char *s2) {
   }
   return false;
 }
+
+bool is_digit(char c) {
+  if (c >= '0' && c <= '9') {
+    return true;
+  }
+  return false;
+}
+
+bool is_leap_year(int year) {
+  return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+bool has_leap_year(const char *s) {
+  int len = strlen(s);
+
+  for (int i = 0; i <= len - 4; i++) {
+    if (is_digit(s[i]) && is_digit(s[i + 1]) && is_digit(s[i + 2]) &&
+        is_digit(s[i + 3])) {
+      int year = (s[i] - '0') * 1000 + (s[i + 1] - '0') * 100 +
+                 (s[i + 2] - '0') * 10 + (s[i + 3] - '0');
+      if (is_leap_year(year)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}

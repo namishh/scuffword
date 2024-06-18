@@ -1,6 +1,5 @@
 #include "db.c"
 #include "prompts.c"
-#include "wordle.c"
 #include <concord/discord.h>
 #include <concord/log.h>
 
