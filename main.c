@@ -8,7 +8,7 @@
 
 // EVENTS
 int main(void) {
-  // seed_db();
+  seed_db();
   update_wordle();
   char *key = read_file("./private/KEY.txt");
   struct discord *client = discord_init(key);

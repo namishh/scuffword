@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 sqlite3 *DB;
 static const char *DB_FILE = "./private/data.db";
@@ -11,19 +12,40 @@ struct user {
   char *name;
   int level;
   char *previous_answer;
+  char *captcha;
 };
 
 void seed_db() {
   char *err_msg = 0;
   sqlite3_open(DB_FILE, &DB);
-  int rc = sqlite3_exec(DB,
-                        "CREATE TABLE IF NOT EXISTS users (id BIGINT PRIMARY "
-                        "KEY, name TEXT, level INTEGER, previous_answer TEXT);",
-                        0, 0, &err_msg);
+  int rc = sqlite3_exec(
+      DB,
+      "CREATE TABLE IF NOT EXISTS users (id BIGINT PRIMARY "
+      "KEY, name TEXT, level INTEGER, previous_answer TEXT, captcha TEXT);",
+      0, 0, &err_msg);
   if (rc != SQLITE_OK) {
     fprintf(stderr, "Failed to create table: %s\n", err_msg);
     sqlite3_free(err_msg);
   }
+}
+
+char random_char(int index) {
+  char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456"
+                   "789!@#$%^&*()_-+=~`{}[]|:;<>?,./";
+  return charset[index];
+}
+
+char random_captcha() { return random_char(rand() % 80); }
+
+char *generate_captcha() {
+  srand(time(NULL));
+  char *captcha = malloc(7 * sizeof(char));
+  int i;
+  for (i = 0; i < 6; i++) {
+    captcha[i] = random_captcha();
+  }
+  captcha[6] = '\0';
+  return captcha;
 }
 
 // get profile by id
@@ -33,7 +55,9 @@ struct user *get_profile(int id) {
 
   sqlite3_open(DB_FILE, &DB);
   int rc = sqlite3_prepare_v2(
-      DB, "SELECT id, name, level FROM users WHERE id = ?", -1, &stmt, NULL);
+      DB,
+      "SELECT id, name, level,previous_answer,captcha FROM users WHERE id = ?",
+      -1, &stmt, NULL);
 
   sqlite3_bind_int(stmt, 1, id);
   rc = sqlite3_step(stmt);
@@ -47,11 +71,14 @@ struct user *get_profile(int id) {
     }
 
     // Retrieve data from the result set
+
     result->id = sqlite3_column_int(stmt, 0);
     result->name = strdup(
         (const char *)sqlite3_column_text(stmt, 1)); // Allocate memory for name
     result->level = sqlite3_column_int(stmt, 2);
-    result->previous_answer = "";
+    result->previous_answer =
+        strdup((const char *)sqlite3_column_text(stmt, 3));
+    result->captcha = strdup((const char *)sqlite3_column_text(stmt, 4));
   } else {
     // make profile if not found
   }
@@ -66,13 +93,14 @@ struct user *get_profile(int id) {
 struct user *create_user(int id, char *username) {
   sqlite3_stmt *stmt;
   struct user *result = NULL;
-
+  char *captcha = generate_captcha();
   sqlite3_open(DB_FILE, &DB);
-  int rc = sqlite3_prepare_v2(DB, "INSERT INTO users VALUES(?, ?, 1, '')", -1,
-                              &stmt, NULL);
+  int rc = sqlite3_prepare_v2(DB, "INSERT INTO users VALUES(?, ?, 1, '', ?)",
+                              -1, &stmt, NULL);
 
   sqlite3_bind_int(stmt, 1, id);
   sqlite3_bind_text(stmt, 2, username, -1, SQLITE_STATIC);
+  sqlite3_bind_text(stmt, 3, captcha, -1, SQLITE_STATIC);
   rc = sqlite3_step(stmt);
 
   if (rc != SQLITE_DONE) {
@@ -89,6 +117,7 @@ struct user *create_user(int id, char *username) {
   result->name = strdup(username);
   result->level = 0;
   result->previous_answer = "";
+  result->captcha = strdup(captcha);
 
   return result;
 }

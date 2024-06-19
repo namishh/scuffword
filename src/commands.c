@@ -1,4 +1,3 @@
-#include "db.c"
 #include "prompts.c"
 #include <concord/discord.h>
 #include <concord/log.h>
@@ -24,20 +23,21 @@ void on_register(struct discord *client, const struct discord_message *msg) {
 
   struct discord_create_message params = {.content = ""};
 
+  discord_create_message(client, msg->channel_id, &params, NULL);
   unsigned long long int id = msg->author->id;
   char *name = msg->author->username;
 
   struct user *profile = get_profile(id);
   if (profile != NULL) {
-    printf("Profile found - ID: %llu, Name: %s, Level: %d\n", profile->id,
-           profile->name, profile->level);
+    printf("Profile found - ID: %llu, Name: %s, Level: %d, Captcha: %s\n",
+           profile->id, profile->name, profile->level, profile->captcha);
     params.content = "You are already registered!";
   } else {
     profile = create_user(id, name);
     if (profile != NULL) {
       printf("Profile created for ID: %llu\n", id);
-      printf("Profile created - ID: %llu, Name: %s, Level: %d\n", profile->id,
-             profile->name, profile->level);
+      printf("Profile created - ID: %llu, Name: %s, Level: %d, Captcha: %s\n",
+             profile->id, profile->name, profile->level, profile->captcha);
       free(profile);
       params.content = "You have been registered!";
     } else {
@@ -57,16 +57,19 @@ void on_profile(struct discord *client, const struct discord_message *msg) {
   unsigned long long int id = msg->author->id;
   char *name = msg->author->username;
 
+  struct discord_create_message params = {.content = "hi"};
   struct user *profile = get_profile(id);
   if (profile != NULL) {
-    printf("Profile found - ID: %llu, Name: %s, Level: %d\n", profile->id,
-           profile->name, profile->level);
+    printf("Profile found - ID: %llu, Name: %s, Level: %d, Captcha: %s, Prev "
+           "Answer: %s\n",
+           profile->id, profile->name, profile->level, profile->captcha,
+           profile->previous_answer);
   } else {
     profile = create_user(id, name);
     if (profile != NULL) {
       printf("Profile created for ID: %llu\n", id);
-      printf("Profile created - ID: %llu, Name: %s, Level: %d\n", profile->id,
-             profile->name, profile->level);
+      printf("Profile created - ID: %llu, Name: %s, Level: %d, Captcha: %s\n",
+             profile->id, profile->name, profile->level, profile->captcha);
     } else {
       printf("Failed to create profile for ID: %llu\n", id);
     }
@@ -86,6 +89,20 @@ void on_reset_profile(struct discord *client,
     return;
   }
   reset_profile(profile);
+}
+
+void on_captcha(struct discord *client, const struct discord_message *msg) {
+  if (msg->author->bot)
+    return;
+  unsigned long long int id = msg->author->id;
+
+  struct user *profile = get_profile(id);
+  if (profile == NULL) {
+    printf("Profile not found.\n");
+    return;
+  }
+  struct discord_create_message params = {.content = profile->captcha};
+  discord_create_message(client, msg->channel_id, &params, NULL);
 }
 
 void on_guess(struct discord *client, const struct discord_message *msg) {
@@ -119,7 +136,7 @@ void on_guess(struct discord *client, const struct discord_message *msg) {
   }
 
   char *args = msg->content;
-  struct Result *valid = validate_password(args, profile->level);
+  struct Result *valid = validate_password(args, profile);
 
   bool will_proceed = true;
 
@@ -169,6 +186,12 @@ const struct command Commands[] = {
         .description = "reset user profile",
         .usage = "!reset",
         .callback = &on_reset_profile,
+    },
+    {
+        .command = "captcha",
+        .description = "captcha",
+        .usage = "!captcha",
+        .callback = &on_captcha,
     },
 };
 

@@ -1,3 +1,4 @@
+#include "db.c"
 #include "wordle.c"
 #include <ctype.h>
 #include <stdbool.h>
@@ -8,7 +9,7 @@
 // https://en.wikipedia.org/wiki/ASCII#Printable_characters
 
 // check is a string is at atleast 6 characters long
-bool level_01(char *s) {
+bool level_01(char *s, struct user *profile) {
   if (strlen(s) < 6) {
     return false;
   }
@@ -16,7 +17,7 @@ bool level_01(char *s) {
 }
 
 // check if string contains a number
-bool level_02(char *s) {
+bool level_02(char *s, struct user *profile) {
   for (int i = 0; i < strlen(s); i++) {
     if (s[i] >= '0' && s[i] <= '9') {
       return true;
@@ -26,7 +27,7 @@ bool level_02(char *s) {
 }
 
 // check if string contains an uppercase letter
-bool level_03(char *s) {
+bool level_03(char *s, struct user *profile) {
   for (int i = 0; i < strlen(s); i++) {
     if (s[i] >= 'A' && s[i] <= 'Z') {
       return true;
@@ -36,7 +37,7 @@ bool level_03(char *s) {
 }
 
 // check if string contains a special character
-bool level_04(char *s) {
+bool level_04(char *s, struct user *profile) {
   for (int i = 0; i < strlen(s); i++) {
     if (!((s[i] >= 'A' && s[i] <= 'Z') || (s[i] >= 'a' && s[i] <= 'z') ||
           (s[i] >= '0' && s[i] <= '9'))) {
@@ -50,7 +51,7 @@ char *months[] = {"January",   "February", "March",    "April",
                   "May",       "June",     "July",     "August",
                   "September", "October",  "November", "December"};
 
-bool level_05(char *s) {
+bool level_05(char *s, struct user *profile) {
   for (int i = 0; i < 12; i++) {
     if (strstr(s, months[i]) != NULL) {
       return true;
@@ -60,7 +61,7 @@ bool level_05(char *s) {
 }
 
 // wordle level
-bool level_10(char *s) {
+bool level_10(char *s, struct user *profile) {
   if (strstr(s, wordle.solution) != NULL) {
     return true;
   }
@@ -83,7 +84,7 @@ bool is_leap(char *s) {
 }
 
 // check if string has a leap year in it
-bool level_06(char *s) {
+bool level_06(char *s, struct user *profile) {
   if (has_leap_year(s)) {
     return true;
   }
@@ -91,7 +92,7 @@ bool level_06(char *s) {
 }
 
 // password should contain 🏋️ emoji
-bool level_07(char *s) {
+bool level_07(char *s, struct user *profile) {
   if (strstr(s, "🏋️") != NULL) {
     return true;
   }
@@ -99,7 +100,7 @@ bool level_07(char *s) {
 }
 
 char *fake_sponsers[3] = {"reddit", "discord", "facebook"};
-bool level_08(char *s) {
+bool level_08(char *s, struct user *profile) {
   for (int i = 0; i < 3; i++) {
     if (strstr(s, fake_sponsers[i]) != NULL) {
       return true;
@@ -110,7 +111,7 @@ bool level_08(char *s) {
 
 // password must contain one of the following affirmations: I am loved|I am
 // worthy|I am enough
-bool level_09(char *s) {
+bool level_09(char *s, struct user *profile) {
   if (strstr(s, "I am loved") != NULL || strstr(s, "I am worthy") != NULL ||
       strstr(s, "I am enough") != NULL) {
     return true;
@@ -119,7 +120,7 @@ bool level_09(char *s) {
 }
 
 // password must contain the current date in YYYY-MM-DD format
-bool level_11(char *s) {
+bool level_11(char *s, struct user *profile) {
   char *date = get_current_date();
   if (strstr(s, date) != NULL) {
     return true;
@@ -128,7 +129,7 @@ bool level_11(char *s) {
 }
 
 // sum of digits in the password should not be more than 20
-bool level_12(char *s) {
+bool level_12(char *s, struct user *profile) {
   int sum = 0;
   for (int i = 0; i < strlen(s); i++) {
     if (s[i] >= '0' && s[i] <= '9') {
@@ -147,7 +148,7 @@ bool isVowel(char ch) {
   return (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u');
 }
 
-bool level_13(char *str) {
+bool level_13(char *str, struct user *profile) {
   int len = strlen(str);
   bool withinStars = false; // Flag to check if we are within **
 
@@ -175,14 +176,14 @@ bool level_13(char *str) {
 }
 
 // password should contain the word belarus
-bool level_14(char *s) {
+bool level_14(char *s, struct user *profile) {
   if (strstr(s, "Belarus") != NULL) {
     return true;
   }
   return false;
 }
 
-bool level_15(char *s) {
+bool level_15(char *s, struct user *profile) {
   if (strstr(s, "A9R8$") != NULL) {
     return true;
   }
@@ -191,7 +192,7 @@ bool level_15(char *s) {
 
 struct Challenge {
   char *name;
-  bool (*check)(char *);
+  bool (*check)(char *, struct user *);
 };
 
 const struct Challenge Challenges[] = {
@@ -233,10 +234,10 @@ struct Result {
 
 // make a function that returns an array of results which are not valid
 
-struct Result *validate_password(char *password, int level) {
+struct Result *validate_password(char *password, struct user *profile) {
   struct Result *results = malloc(sizeof(struct Result) * NoOfChallenges);
-  for (int i = 0; i < level + 1; i++) {
-    bool valid = Challenges[i].check(password);
+  for (int i = 0; i < profile->level + 1; i++) {
+    bool valid = Challenges[i].check(password, profile);
     results[i].valid = valid;
     results[i].message = Challenges[i].name;
   }
