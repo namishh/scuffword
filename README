@@ -16,9 +16,9 @@ cc main.c -o bot -L/usr/local/lib -ldiscord -lcurl -lpthread -lsqlite3 ; ./bot
     - [ ] roman numerals
       - [ ] add two roman numbers
       - [ ] product of roman numbers
-    - [ ] captcha
-      - [ ] generate captcha 
-      - [ ] refresh captcha
+    - [x] captcha
+      - [x] generate captcha 
+      - [x] refresh captcha
     - [x] country 
     - [ ] math equation
       - [ ] generate maths

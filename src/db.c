@@ -167,11 +167,13 @@ void update_previous_answer(struct user *profile, char *answer) {
 void reset_profile(struct user *profile) {
   sqlite3_stmt *stmt;
   sqlite3_open(DB_FILE, &DB);
-  int rc = sqlite3_prepare_v2(
-      DB, "UPDATE users SET level = 0, previous_answer = '' WHERE id = ?", -1,
-      &stmt, NULL);
-
-  sqlite3_bind_int(stmt, 1, profile->id);
+  int rc = sqlite3_prepare_v2(DB,
+                              "UPDATE users SET level = 0, previous_answer = "
+                              "'', captcha = ? WHERE id = ?",
+                              -1, &stmt, NULL);
+  char *new_captcha = generate_captcha();
+  sqlite3_bind_text(stmt, 1, new_captcha, -1, SQLITE_STATIC);
+  sqlite3_bind_int(stmt, 2, profile->id);
   rc = sqlite3_step(stmt);
 
   if (rc != SQLITE_DONE) {
