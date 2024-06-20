@@ -219,7 +219,7 @@ bool level_17(char *s, struct user *profile) {
 }
 
 // password should be 2 characters less than the previous Password
-bool level_20(char *s, struct user *profile) {
+bool level_19(char *s, struct user *profile) {
   if (profile->passed_level_20) {
     return true;
   } else {
@@ -244,7 +244,7 @@ bool is_prime(int n) {
   return true;
 }
 
-bool level_21(char *s, struct user *profile) {
+bool level_20(char *s, struct user *profile) {
   if (is_prime(strlen(s))) {
     return true;
   }
@@ -290,9 +290,9 @@ const struct Challenge Challenges[] = {
      .check = &level_17},
     {.name = "Password should be 2 characters less than the "
              "previous Password",
-     .check = &level_20},
+     .check = &level_19},
     {.name = "Length of password should be a prime number.",
-     .check = &level_21}};
+     .check = &level_20}};
 
 const int NoOfChallenges = sizeof(Challenges) / sizeof(Challenges[0]);
 

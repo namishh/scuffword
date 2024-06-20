@@ -119,6 +119,8 @@ void on_captcha(struct discord *client, const struct discord_message *msg) {
     printf("Profile not found.\n");
     return;
   }
+  char message[100];
+  sprintf(message, "Captcha for %s is `%s`", profile->name, profile->captcha);
   struct discord_create_message params = {.content = profile->captcha};
   discord_create_message(client, msg->channel_id, &params, NULL);
 }
@@ -149,22 +151,59 @@ void on_guess(struct discord *client, const struct discord_message *msg) {
   char *args = msg->content;
   struct Result *valid = validate_password(args, profile);
 
+  struct discord_embed embed = {
+      .title = "Password Validation",
+      .author =
+          &(struct discord_embed_author){
+              .name = profile->name,
+          },
+      .color = 0x3498DB,
+      .timestamp = discord_timestamp(client),
+      .footer =
+          &(struct discord_embed_footer){
+              .text = "Made with ❤️ by chadcat7",
+              .icon_url =
+                  "https://avatars.githubusercontent.com/u/68964499?v=4",
+          },
+      .url = "https://github.com/chadcat7/scuffword",
+  };
+
   bool will_proceed = true;
 
   for (int i = 0; i < profile->level + 1; i++) {
     printf("%s : %d \n", valid[i].message, valid[i].valid);
     if (valid[i].valid == false) {
+      char *s = (valid[i].valid == true) ? "true" : "false";
+      discord_embed_add_field(&embed, valid[i].message, s, false);
       will_proceed = false;
     }
   }
 
   if (will_proceed) {
+    char message[200];
+    snprintf(message, sizeof(message),
+             "Correct **%s** ! You have proceeded to level\nYour next prompt "
+             "is: %s.",
+             profile->name, Challenges[profile->level + 1].name);
+    struct discord_create_message params = {.content = message};
+    discord_create_message(client, msg->channel_id, &params, NULL);
     progress_user(profile);
     printf("user proceeded to level %d\n", profile->level + 1);
   }
+  char prev_answer_message[100];
+  sprintf(prev_answer_message, "Previous answer: %s", args);
+  struct discord_create_message params = {
+      .content = prev_answer_message,
+      .embeds =
+          &(struct discord_embeds){
+              .size = 1,
+              .array = &embed,
+          },
+  };
+
+  discord_create_message(client, msg->channel_id, &params, NULL);
 
   update_previous_answer(profile, args);
-
   printf("will proceed: %d\n", will_proceed);
   printf("%s\n", args);
 }

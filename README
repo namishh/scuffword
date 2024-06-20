@@ -1,7 +1,7 @@
 # Scuffed Password Game in a Discord Bot 
 
 # To run the bot
-cc main.c -o bot -L/usr/local/lib -ldiscord -lcurl -lpthread -lsqlite3 -lm ; ./bot
+cc main.c -o bot -L/usr/local/lib -ldiscord -lcurl -lpthread -lsqlite3 ; ./bot
 
 * requires concord and sqlite3
 
@@ -10,7 +10,7 @@ cc main.c -o bot -L/usr/local/lib -ldiscord -lcurl -lpthread -lsqlite3 -lm ; ./b
 - [x] set up commands
 - [x] save profile 
 - [x] validate questions
-- [ ] questions
+- [x] questions
     - [x] uppercase, number, special character
     - [x] wordle 
     - [x] captcha
@@ -18,9 +18,6 @@ cc main.c -o bot -L/usr/local/lib -ldiscord -lcurl -lpthread -lsqlite3 -lm ; ./b
       - [x] refresh captcha
     - [x] country 
     - [x] strong
-    - [ ] math equation
-      - [ ] generate maths
-      - [ ] refresh maths
     - [x] leap
     - [x] sponsers
     - [x] sum of digits
@@ -32,9 +29,8 @@ cc main.c -o bot -L/usr/local/lib -ldiscord -lcurl -lpthread -lsqlite3 -lm ; ./b
     - [x] elements
       - [x] elem of the day 
       - [x] sum of atomic number of elements
-    - [ ] 2x consonants italics
-- [ ] tell errors
-- [ ] save last guess
+- [x] tell errors
+- [x] save last guess
 - [x] progres player
 - [x] end the game
 
