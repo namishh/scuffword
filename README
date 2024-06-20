@@ -13,28 +13,25 @@ cc main.c -o bot -L/usr/local/lib -ldiscord -lcurl -lpthread -lsqlite3 -lm ; ./b
 - [ ] questions
     - [x] uppercase, number, special character
     - [x] wordle 
-    - [ ] roman numerals
-      - [ ] add two roman numbers
-      - [ ] product of roman numbers
     - [x] captcha
       - [x] generate captcha 
       - [x] refresh captcha
     - [x] country 
+    - [x] strong
     - [ ] math equation
       - [ ] generate maths
       - [ ] refresh maths
-    - [x] strong
     - [x] leap
     - [x] sponsers
     - [x] sum of digits
     - [x] current date 
-    - [ ] length shuould be a prime number 
+    - [x] length shuould be a prime number 
     - [x] remove 2 letters
     - [x] affirmations
     - [x] vowels bolded
-    - [ ] elements
+    - [x] elements
       - [x] elem of the day 
-      - [ ] sum of atomic number of elements
+      - [x] sum of atomic number of elements
     - [ ] 2x consonants italics
 - [ ] tell errors
 - [ ] save last guess

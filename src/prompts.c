@@ -210,12 +210,25 @@ bool level_16(char *s, struct user *profile) {
   return false;
 }
 
+bool level_17(char *s, struct user *profile) {
+  int sum = sumOfAtomicNumbers(s);
+  if (sum < 60 || sum > 100) {
+    return false;
+  }
+  return true;
+}
+
 // password should be 2 characters less than the previous Password
 bool level_20(char *s, struct user *profile) {
-  if (strlen(s) == strlen(profile->previous_answer) - 2) {
+  if (profile->passed_level_20) {
     return true;
+  } else {
+    if (strlen(s) == strlen(profile->previous_answer) - 2) {
+      setl20(profile);
+      return true;
+    }
+    return false;
   }
-  return false;
 }
 
 // length of password should be a prime number
@@ -272,7 +285,9 @@ const struct Challenge Challenges[] = {
     {.name = "Password should contain the atomic number for element of the "
              "day. (run the `element` command)",
      .check = &level_16},
-
+    {.name = "Password should contain names of elements (at no from 1 to 50) "
+             "and the sum of atomic numbers should be between 60 and 100.",
+     .check = &level_17},
     {.name = "Password should be 2 characters less than the "
              "previous Password",
      .check = &level_20},

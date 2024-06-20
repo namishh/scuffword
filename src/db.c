@@ -13,16 +13,17 @@ struct user {
   int level;
   char *previous_answer;
   char *captcha;
+  int passed_level_20;
 };
 
 void seed_db() {
   char *err_msg = 0;
   sqlite3_open(DB_FILE, &DB);
-  int rc = sqlite3_exec(
-      DB,
-      "CREATE TABLE IF NOT EXISTS users (id BIGINT PRIMARY "
-      "KEY, name TEXT, level INTEGER, previous_answer TEXT, captcha TEXT);",
-      0, 0, &err_msg);
+  int rc = sqlite3_exec(DB,
+                        "CREATE TABLE IF NOT EXISTS users (id BIGINT PRIMARY "
+                        "KEY, name TEXT, level INTEGER, previous_answer TEXT, "
+                        "captcha TEXT, passed_level_20 INTEGER);",
+                        0, 0, &err_msg);
   if (rc != SQLITE_OK) {
     fprintf(stderr, "Failed to create table: %s\n", err_msg);
     sqlite3_free(err_msg);
@@ -56,7 +57,8 @@ struct user *get_profile(int id) {
   sqlite3_open(DB_FILE, &DB);
   int rc = sqlite3_prepare_v2(
       DB,
-      "SELECT id, name, level,previous_answer,captcha FROM users WHERE id = ?",
+      "SELECT id, name, level,previous_answer,captcha,passed_level_20 FROM "
+      "users WHERE id = ?",
       -1, &stmt, NULL);
 
   sqlite3_bind_int(stmt, 1, id);
@@ -79,6 +81,7 @@ struct user *get_profile(int id) {
     result->previous_answer =
         strdup((const char *)sqlite3_column_text(stmt, 3));
     result->captcha = strdup((const char *)sqlite3_column_text(stmt, 4));
+    result->passed_level_20 = sqlite3_column_int(stmt, 5);
   } else {
     // make profile if not found
   }
@@ -89,13 +92,35 @@ struct user *get_profile(int id) {
   return result;
 }
 
+// set passed_level_20 = 1 for a profile
+void setl20(struct user *profile) {
+  sqlite3_stmt *stmt;
+  sqlite3_open(DB_FILE, &DB);
+  int rc = sqlite3_prepare_v2(DB, "UPDATE users SET level = 1 WHERE id = ?", -1,
+                              &stmt, NULL);
+  char *new_captcha = generate_captcha();
+  sqlite3_bind_text(stmt, 1, new_captcha, -1, SQLITE_STATIC);
+  sqlite3_bind_int(stmt, 2, profile->id);
+  rc = sqlite3_step(stmt);
+
+  if (rc != SQLITE_DONE) {
+    fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(DB));
+    sqlite3_finalize(stmt);
+    sqlite3_close(DB);
+    return;
+  }
+
+  sqlite3_finalize(stmt);
+  sqlite3_close(DB);
+}
+
 // create profile for the user
 struct user *create_user(int id, char *username) {
   sqlite3_stmt *stmt;
   struct user *result = NULL;
   char *captcha = generate_captcha();
   sqlite3_open(DB_FILE, &DB);
-  int rc = sqlite3_prepare_v2(DB, "INSERT INTO users VALUES(?, ?, 1, '', ?)",
+  int rc = sqlite3_prepare_v2(DB, "INSERT INTO users VALUES(?, ?, 1, '', ?, 0)",
                               -1, &stmt, NULL);
 
   sqlite3_bind_int(stmt, 1, id);
@@ -118,6 +143,7 @@ struct user *create_user(int id, char *username) {
   result->level = 0;
   result->previous_answer = "";
   result->captcha = strdup(captcha);
+  result->passed_level_20 = 0;
 
   return result;
 }

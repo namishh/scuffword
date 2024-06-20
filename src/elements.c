@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <ctype.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -47,4 +48,18 @@ void get_element_of_the_day() {
   int timestamp = (int)time(NULL); // Get current Unix timestamp
   char *time = convert_timestamp(timestamp);
   ElementOfTheDay.date = time;
+}
+
+int sumOfAtomicNumbers(char *string) {
+  int sum = 0;
+  size_t len = strlen(string);
+
+  // check how many NAMES of elemetns are present in the string
+  for (int i = 0; i < 50; i++) {
+    if (strstr(string, Elements[i].name) != NULL) {
+      sum += Elements[i].at_no;
+    }
+  }
+
+  return sum;
 }
