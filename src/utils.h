@@ -93,4 +93,24 @@ bool has_leap_year(const char *s) {
   return false;
 }
 
+char *remove_char(char *str, char c) {
+  int len = strlen(str);
+  char *result = (char *)malloc(
+      (len + 1) * sizeof(char)); // Allocate memory for the result string
+  if (result == NULL) {
+    fprintf(stderr, "Memory allocation failed\n");
+    return NULL; // Return NULL if memory allocation fails
+  }
+
+  int j = 0; // Index for the new string without 'c'
+  for (int i = 0; i < len; i++) {
+    if (str[i] != c) {
+      result[j++] = str[i]; // Copy character if it's not 'c'
+    }
+  }
+  result[j] = '\0'; // Null-terminate the result string
+
+  return result;
+}
+
 #endif

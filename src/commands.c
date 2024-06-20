@@ -51,6 +51,25 @@ void on_register(struct discord *client, const struct discord_message *msg) {
   discord_create_message(client, msg->channel_id, &params, NULL);
 }
 
+void on_prompt(struct discord *client, const struct discord_message *msg) {
+  if (msg->author->bot)
+    return;
+  unsigned long long int id = msg->author->id;
+
+  struct user *profile = get_profile(id);
+  if (profile == NULL) {
+    printf("Profile not found.\n");
+    return;
+  }
+  char message[512];
+  snprintf(message, sizeof(message),
+           "**%s**, your current prompt is: %s.\nPrevious answer: %s",
+           profile->name, Challenges[profile->level].name,
+           profile->previous_answer);
+  struct discord_create_message params = {.content = message};
+  discord_create_message(client, msg->channel_id, &params, NULL);
+}
+
 void on_profile(struct discord *client, const struct discord_message *msg) {
   if (msg->author->bot)
     return;
@@ -61,12 +80,32 @@ void on_profile(struct discord *client, const struct discord_message *msg) {
   struct discord_create_message params = {.content = "hi"};
   struct user *profile = get_profile(id);
   if (profile != NULL) {
+    char message[512];
+    snprintf(message, sizeof(message),
+             "Profile found -```ID: %llu\nName: %s\nLevel: %d\nCaptcha: %s\n"
+             "Prev Answer: %s```",
+             profile->id, profile->name, profile->level, profile->captcha,
+             profile->previous_answer);
+    struct discord_create_message params = {
+        .content = message,
+    };
+    discord_create_message(client, msg->channel_id, &params, NULL);
     printf("Profile found - ID: %llu, Name: %s, Level: %d, Captcha: %s, Prev "
            "Answer: %s\n",
            profile->id, profile->name, profile->level, profile->captcha,
            profile->previous_answer);
   } else {
     profile = create_user(id, name);
+    char message[512];
+    snprintf(message, sizeof(message),
+             "Profile found -```ID: %llu\nName: %s\nLevel: %d\nCaptcha: %s\n"
+             "Prev Answer: %s```",
+             profile->id, profile->name, profile->level, profile->captcha,
+             profile->previous_answer);
+    struct discord_create_message params = {
+        .content = message,
+    };
+    discord_create_message(client, msg->channel_id, &params, NULL);
     if (profile != NULL) {
       printf("Profile created for ID: %llu\n", id);
       printf("Profile created - ID: %llu, Name: %s, Level: %d, Captcha: %s\n",
@@ -90,7 +129,7 @@ void on_element(struct discord *client, const struct discord_message *msg) {
   }
   char message[100];
   snprintf(message, sizeof(message), "Element of the date %s is %s",
-           ElementOfTheDay.date, ElementOfTheDay.name);
+           ElementOfTheDay.date, ElementOfTheDay.symbol);
   struct discord_create_message params = {.content = message};
   discord_create_message(client, msg->channel_id, &params, NULL);
 }
@@ -173,14 +212,23 @@ void on_guess(struct discord *client, const struct discord_message *msg) {
   for (int i = 0; i < profile->level + 1; i++) {
     printf("%s : %d \n", valid[i].message, valid[i].valid);
     if (valid[i].valid == false) {
-      char *s = (valid[i].valid == true) ? "true" : "false";
-      discord_embed_add_field(&embed, valid[i].message, s, false);
       will_proceed = false;
     }
+    char *s = (valid[i].valid == true) ? "`✅` Passed" : "`🔴` Failed";
+    discord_embed_add_field(&embed, valid[i].message, s, false);
   }
 
   if (will_proceed) {
     char message[200];
+    if (profile->level == NoOfChallenges - 1) {
+      snprintf(message, sizeof(message),
+               "Correct **%s** ! You have completed all the levels! "
+               "Congratulations!",
+               profile->name);
+      struct discord_create_message params = {.content = message};
+      discord_create_message(client, msg->channel_id, &params, NULL);
+      return;
+    }
     snprintf(message, sizeof(message),
              "Correct **%s** ! You have proceeded to level\nYour next prompt "
              "is: %s.",
@@ -248,6 +296,12 @@ const struct command Commands[] = {
         .description = "get today's element",
         .usage = "!element",
         .callback = &on_element,
+    },
+    {
+        .command = "prompt",
+        .description = "get your current prompt",
+        .usage = "!prompt",
+        .callback = &on_prompt,
     },
 };
 

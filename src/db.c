@@ -30,13 +30,11 @@ void seed_db() {
   }
 }
 
-char random_char(int index) {
-  char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456"
-                   "789!@#$%^&*()_-+=~`{}[]|:;<>?,./";
-  return charset[index];
-}
+char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456"
+                 "789!@#$%^&";
+char random_char(int index) { return charset[index]; }
 
-char random_captcha() { return random_char(rand() % 80); }
+char random_captcha() { return random_char(rand() % strlen(charset)); }
 
 char *generate_captcha() {
   srand(time(NULL));

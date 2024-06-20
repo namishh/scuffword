@@ -53,8 +53,9 @@ char *months[] = {"January",   "February", "March",    "April",
                   "September", "October",  "November", "December"};
 
 bool level_05(char *s, struct user *profile) {
+  char *s1 = remove_char(s, '*');
   for (int i = 0; i < 12; i++) {
-    if (strstr(s, months[i]) != NULL) {
+    if (strstr(s1, months[i]) != NULL) {
       return true;
     }
   }
@@ -63,13 +64,14 @@ bool level_05(char *s, struct user *profile) {
 
 // wordle level
 bool level_10(char *s, struct user *profile) {
+  char *s1 = remove_char(s, '*');
   int timestamp = (int)time(NULL);
   char *time = convert_timestamp(timestamp);
   if (!are_equal(time, wordle.printdate)) {
     printf("updating wordle \n");
     update_wordle();
   }
-  if (strstr(s, wordle.solution) != NULL) {
+  if (strstr(s1, wordle.solution) != NULL) {
     return true;
   }
   return false;
@@ -108,8 +110,9 @@ bool level_07(char *s, struct user *profile) {
 
 char *fake_sponsers[3] = {"reddit", "discord", "facebook"};
 bool level_08(char *s, struct user *profile) {
+  char *s1 = remove_char(s, '*');
   for (int i = 0; i < 3; i++) {
-    if (strstr(s, fake_sponsers[i]) != NULL) {
+    if (strstr(s1, fake_sponsers[i]) != NULL) {
       return true;
     }
   }
@@ -119,8 +122,9 @@ bool level_08(char *s, struct user *profile) {
 // password must contain one of the following affirmations: I am loved|I am
 // worthy|I am enough
 bool level_09(char *s, struct user *profile) {
-  if (strstr(s, "I am loved") != NULL || strstr(s, "I am worthy") != NULL ||
-      strstr(s, "I am enough") != NULL) {
+  char *s1 = remove_char(s, '*');
+  if (strstr(s1, "I am loved") != NULL || strstr(s1, "I am worthy") != NULL ||
+      strstr(s1, "I am enough") != NULL) {
     return true;
   }
   return false;
@@ -143,7 +147,7 @@ bool level_12(char *s, struct user *profile) {
       sum += s[i] - '0';
     }
   }
-  if (sum > 20) {
+  if (sum > 32) {
     return false;
   }
   return true;
@@ -184,34 +188,38 @@ bool level_13(char *str, struct user *profile) {
 
 // password should contain the word belarus
 bool level_14(char *s, struct user *profile) {
-  if (strstr(s, "Belarus") != NULL) {
+  char *s1 = remove_char(s, '*');
+  if (strstr(s1, "Belarus") != NULL) {
     return true;
   }
   return false;
 }
 
 bool level_15(char *s, struct user *profile) {
-  if (strstr(s, profile->captcha) != NULL) {
+  char *s1 = remove_char(s, '*');
+  if (strstr(s1, profile->captcha) != NULL) {
     return true;
   }
   return false;
 }
 
 bool level_16(char *s, struct user *profile) {
+  char *s1 = remove_char(s, '*');
   int timestamp = (int)time(NULL);
   char *time = convert_timestamp(timestamp);
   if (!are_equal(time, ElementOfTheDay.date)) {
     printf("updating elment \n");
     get_element_of_the_day();
   }
-  if (strstr(s, ElementOfTheDay.name) != NULL) {
+  if (strstr(s1, ElementOfTheDay.name) != NULL) {
     return true;
   }
   return false;
 }
 
 bool level_17(char *s, struct user *profile) {
-  int sum = sumOfAtomicNumbers(s);
+  char *s1 = remove_char(s, '*');
+  int sum = sumOfAtomicNumbers(s1);
   if (sum < 60 || sum > 100) {
     return false;
   }
@@ -220,11 +228,12 @@ bool level_17(char *s, struct user *profile) {
 
 // password should be 2 characters less than the previous Password
 bool level_19(char *s, struct user *profile) {
-  if (profile->passed_level_20) {
+  if (profile->passed_level_20 > 0) {
     return true;
   } else {
     if (strlen(s) == strlen(profile->previous_answer) - 2) {
       setl20(profile);
+      profile->passed_level_20 = 1;
       return true;
     }
     return false;
@@ -245,7 +254,8 @@ bool is_prime(int n) {
 }
 
 bool level_20(char *s, struct user *profile) {
-  if (is_prime(strlen(s))) {
+  char *s1 = remove_char(s, '*');
+  if (is_prime(strlen(s1))) {
     return true;
   }
   return false;
@@ -257,7 +267,8 @@ struct Challenge {
 };
 
 const struct Challenge Challenges[] = {
-    {.name = "Password should have atleast 6 letters.", .check = &level_01},
+    //    {.name = "Password should have atleast 6 letters.", .check =
+    //    &level_01},
     {.name = "Password should contain a number.", .check = &level_02},
     {.name = "Password should contain an uppercase letter.",
      .check = &level_03},
@@ -276,13 +287,13 @@ const struct Challenge Challenges[] = {
      .check = &level_10},
     {.name = "Password should contain today's date in YYYY-MM-DD format",
      .check = &level_11},
-    {.name = "Sum of digits in the password should not be more than 20",
+    {.name = "Sum of digits in the password should not be more than 32",
      .check = &level_12},
-    {.name = "Each individual vowel should be bold.", .check = &level_13},
+    // {.name = "Each individual vowel should be bold.", .check = &level_13},
     {.name = "Password should contain this country: 🇧🇾", .check = &level_14},
     {.name = "Password should contain your captcha (run the `captcha` command)",
      .check = &level_15},
-    {.name = "Password should contain the atomic number for element of the "
+    {.name = "Password should contain the name for element of the "
              "day. (run the `element` command)",
      .check = &level_16},
     {.name = "Password should contain names of elements (at no from 1 to 50) "
@@ -291,7 +302,8 @@ const struct Challenge Challenges[] = {
     {.name = "Password should be 2 characters less than the "
              "previous Password",
      .check = &level_19},
-    {.name = "Length of password should be a prime number.",
+    {.name = "Length of password should be a prime number. (not counting the "
+             "asterisks for bold)",
      .check = &level_20}};
 
 const int NoOfChallenges = sizeof(Challenges) / sizeof(Challenges[0]);

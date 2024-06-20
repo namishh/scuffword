@@ -68,6 +68,7 @@ void update_wordle() {
   sprintf(command, "curl https://www.nytimes.com/svc/wordle/v2/%s.json", date);
   char *res = run_command(command);
   char *solution = find_json_value(res, "\"solution\"");
+  printf("solution to wordle:  %s\n", solution);
   char *printdate = find_json_value(res, "\"print_date\"");
   wordle.solution = solution;
   wordle.printdate = printdate;
