@@ -4,6 +4,9 @@
 #include <string.h>
 #include <time.h>
 
+#ifndef __RESPONSE_H__
+#define __RESPONSE_H__
+
 char *convert_timestamp(int timestamp) {
   time_t ts = (time_t)timestamp;
   struct tm *tm_info;
@@ -89,3 +92,5 @@ bool has_leap_year(const char *s) {
 
   return false;
 }
+
+#endif

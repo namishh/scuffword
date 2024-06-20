@@ -1,4 +1,5 @@
 #include "prompts.c"
+#include "string.h"
 #include <concord/discord.h>
 #include <concord/log.h>
 
@@ -77,6 +78,23 @@ void on_profile(struct discord *client, const struct discord_message *msg) {
   printf("%s lvl %d\n", profile->name, profile->level);
 }
 
+void on_element(struct discord *client, const struct discord_message *msg) {
+  if (msg->author->bot)
+    return;
+  unsigned long long int id = msg->author->id;
+
+  struct user *profile = get_profile(id);
+  if (profile == NULL) {
+    printf("Profile not found.\n");
+    return;
+  }
+  char message[100];
+  snprintf(message, sizeof(message), "Element of the date %s is %s",
+           ElementOfTheDay.date, ElementOfTheDay.name);
+  struct discord_create_message params = {.content = message};
+  discord_create_message(client, msg->channel_id, &params, NULL);
+}
+
 void on_reset_profile(struct discord *client,
                       const struct discord_message *msg) {
   if (msg->author->bot)
@@ -109,13 +127,6 @@ void on_guess(struct discord *client, const struct discord_message *msg) {
   if (msg->author->bot)
     return;
 
-  // get the timestamp
-  int timestamp = (int)time(NULL);
-  char *time = convert_timestamp(timestamp);
-  if (!are_equal(time, wordle.printdate)) {
-    printf("updating wordle \n");
-    update_wordle();
-  }
   unsigned long long int id = msg->author->id;
 
   struct user *profile = get_profile(id);
@@ -192,6 +203,12 @@ const struct command Commands[] = {
         .description = "captcha",
         .usage = "!captcha",
         .callback = &on_captcha,
+    },
+    {
+        .command = "element",
+        .description = "get today's element",
+        .usage = "!element",
+        .callback = &on_element,
     },
 };
 

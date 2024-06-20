@@ -10,6 +10,7 @@
 int main(void) {
   seed_db();
   update_wordle();
+  get_element_of_the_day();
   char *key = read_file("./private/KEY.txt");
   struct discord *client = discord_init(key);
   free(key);

@@ -1,4 +1,5 @@
 #include "db.c"
+#include "elements.c"
 #include "wordle.c"
 #include <ctype.h>
 #include <stdbool.h>
@@ -62,6 +63,12 @@ bool level_05(char *s, struct user *profile) {
 
 // wordle level
 bool level_10(char *s, struct user *profile) {
+  int timestamp = (int)time(NULL);
+  char *time = convert_timestamp(timestamp);
+  if (!are_equal(time, wordle.printdate)) {
+    printf("updating wordle \n");
+    update_wordle();
+  }
   if (strstr(s, wordle.solution) != NULL) {
     return true;
   }
@@ -184,7 +191,48 @@ bool level_14(char *s, struct user *profile) {
 }
 
 bool level_15(char *s, struct user *profile) {
-  if (strstr(s, "A9R8$") != NULL) {
+  if (strstr(s, profile->captcha) != NULL) {
+    return true;
+  }
+  return false;
+}
+
+bool level_16(char *s, struct user *profile) {
+  int timestamp = (int)time(NULL);
+  char *time = convert_timestamp(timestamp);
+  if (!are_equal(time, ElementOfTheDay.date)) {
+    printf("updating elment \n");
+    get_element_of_the_day();
+  }
+  if (strstr(s, ElementOfTheDay.name) != NULL) {
+    return true;
+  }
+  return false;
+}
+
+// password should be 2 characters less than the previous Password
+bool level_20(char *s, struct user *profile) {
+  if (strlen(s) == strlen(profile->previous_answer) - 2) {
+    return true;
+  }
+  return false;
+}
+
+// length of password should be a prime number
+bool is_prime(int n) {
+  if (n <= 1) {
+    return false;
+  }
+  for (int i = 2; i < n; i++) {
+    if (n % i == 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool level_21(char *s, struct user *profile) {
+  if (is_prime(strlen(s))) {
     return true;
   }
   return false;
@@ -219,11 +267,17 @@ const struct Challenge Challenges[] = {
      .check = &level_12},
     {.name = "Each individual vowel should be bold.", .check = &level_13},
     {.name = "Password should contain this country: 🇧🇾", .check = &level_14},
-    {.name = "Password should contain this captcha: "
-             "[captcha](https://iili.io/d9b7Thl.png) ",
+    {.name = "Password should contain your captcha (run the `captcha` command)",
      .check = &level_15},
+    {.name = "Password should contain the atomic number for element of the "
+             "day. (run the `element` command)",
+     .check = &level_16},
 
-};
+    {.name = "Password should be 2 characters less than the "
+             "previous Password",
+     .check = &level_20},
+    {.name = "Length of password should be a prime number.",
+     .check = &level_21}};
 
 const int NoOfChallenges = sizeof(Challenges) / sizeof(Challenges[0]);
 
